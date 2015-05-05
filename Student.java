@@ -1,23 +1,26 @@
 package com.students;
 
-public class Student extends Man implements Comparable {
+public class Student implements Comparable {
 
 	public Student(int age, String name, String sex) {
-		super(age, name, sex);
 		this.age = age;
 		this.name = name;
 		this.sex = sex;
-		// TODO Auto-generated constructor stub
+	}
+
+	public Student() {
+		super();
 	}
 
 	int age;
 	String name;
 	String sex;
 
-	@Override
-	public void getInfo() {
-		// TODO Auto-generated method stub
-		super.getInfo();
+	public void getInfo(){
+		System.out.println("Name =" + name);
+		System.out.println("Age = " + age);
+		System.out.println("Sex = " + sex);
+		System.out.println("----------------------");
 	}
 
 	@Override
@@ -31,5 +34,29 @@ public class Student extends Man implements Comparable {
 			return -1;
 		else
 			return 0;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
 	}
 }

@@ -1,19 +1,21 @@
 package com.students;
 
 import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.*;
 
 public class Group {
 
-	private Student[] group = new Student[10];
 	private static List<Student> groupFromFile = new ArrayList<Student>();
+	static File folderName = new File("student.txt");
 
 	public void run() {
-		File foldername = new File("student.txt");
+
 		int option;
 
 		System.out
-				.println("Choose the type of students' input. 1 - manual, 2 - use the defualt info");
+				.println("Do you want to register new student? \n1 - register new student \n2 - read from file");
 		option = Integer.valueOf(Group.input(""));
 		switch (option) {
 
@@ -22,71 +24,44 @@ public class Group {
 			break;
 		}
 		case 2: {
-			group[0] = new Student(18, "Pavlov Anton", "male");
-			group[1] = new Student(20, "Pavlov Sergey", "male");
-			group[2] = new Student(17, "Ivanova Mariya", "female");
-			group[3] = new Student(22, "Ivanov Ivan", "male");
-			group[4] = new Student(19, "Aleksandrova Anastasiya", "female");
-			group[5] = new Student(18, "Aleksandrov Artem", "male");
-			group[6] = new Student(27, "Shrayk Roman", "male");
-			group[7] = new Student(35, "Lyashko Oleg", "male");
-			group[8] = new Student(21, "Lyuksemburg Roza", "female");
-			group[9] = new Student(24, "Borisova Lesya", "female");
-			break;
+			readFromFile(groupFromFile, folderName);
 		}
 		}
-		writeToFile(group, foldername);	
-		readFromFile(groupFromFile, foldername);
-		readFromCollection();
+		ServerHTTP server = new ServerHTTP(groupFromFile);
+		ServerHTTP.serverRun();
 	}
 
-	public void output() {
-		System.out.println("*************Sorted group**************");
-		Arrays.sort(group);
-		for (Student elem : group) {
-			elem.getInfo();
-		}
+	static void studentsInput() {
+		Student temp = new Student();
+		System.out.println("Please enter the information about student:");
+		temp.setName(input("Enter student name: "));
+		temp.setAge(Integer.valueOf(input("Enter student age: ")));
+		temp.setSex(input("Enter student sex: "));
+		writeToFile(temp, folderName);
 	}
 
-	public void studentsInput() {
-		System.out.println("Please enter the information about students:");
-		for (int i = 0; i < group.length; i++) {
-			System.out.println((i + 1) + " student --------->");
-			String name = input("Enter student name: ");
-			int age = Integer.valueOf(input("Enter student age: "));
-			String sex = input("Enter student sex: ");
-			try {
-				group[i] = new Student(age, name, sex);
-			} catch (ArrayIndexOutOfBoundsException e) {
-				System.out.println("Out of bounds!");
-			}
-			System.out.println("---------------------");
-		}
-	}
-
-	static void writeToFile(Student[] group, File folderName) {
+	static void writeToFile(Student student, File folderName) {
 		System.out.println("Writing to file...");
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(folderName))) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(folderName,
+				true))) {
 			if (!folderName.exists()) {
 				folderName.createNewFile();
 			}
-			for (Student elem : group) {
-				bw.write("Student: " + elem.getName());
-				bw.newLine();
-				bw.write("Age : " + elem.getAge());
-				bw.newLine();
-				bw.write("Sex: " + elem.getSex());
-				bw.newLine();
-				bw.write("-------------------------");
-				bw.newLine();
-			}
+			bw.write("Student: " + student.getName());
+			bw.newLine();
+			bw.write("Age : " + student.getAge());
+			bw.newLine();
+			bw.write("Sex: " + student.getSex());
+			bw.newLine();
+			bw.write("-------------------------");
+			bw.newLine();
 		} catch (IOException e) {
 			System.out.println("Error!");
 		}
 		System.out.println("Writing to file completed...");
 	}
 
-	static void readFromFile(List<Student> groupFromFile2, File foldername){
+	static void readFromFile(List<Student> groupFromFile, File foldername) {
 		try (BufferedReader br = new BufferedReader(new FileReader(foldername))) {
 			System.out.println("\nReading from file...\n\n");
 			String str = "";
@@ -95,7 +70,8 @@ public class Group {
 			String sex = "";
 			String line = "";
 			for (; (line = br.readLine()) != null;) {
-				StringTokenizer aStringTokenizer = new StringTokenizer(line," :");
+				StringTokenizer aStringTokenizer = new StringTokenizer(line,
+						" :");
 
 				while (aStringTokenizer.hasMoreTokens()) {
 
@@ -108,7 +84,7 @@ public class Group {
 					} else if (str.equals("Sex")) {
 						sex = aStringTokenizer.nextToken();
 					} else if (str.equals("-------------------------")) {
-						groupFromFile2.add(new Student(age, name, sex));
+						groupFromFile.add(new Student(age, name, sex));
 						System.out.println(name + " " + age + " " + sex);
 					}
 				}
@@ -118,18 +94,9 @@ public class Group {
 		}
 	}
 
-	public static void readFromCollection() {
-		System.out
-				.println("\nReading from Collection...\n\n");
-		for (int i = 0; i < groupFromFile.size(); i++) {
-			Student st = groupFromFile.get(i);
-			st.getInfo();
-		}
-	}
-
 	public static String input(String message) {
 		System.out.print(message + ": ");
 		Scanner scan = new Scanner(System.in);
-		return scan.next();
+		return scan.nextLine();
 	}
 }
